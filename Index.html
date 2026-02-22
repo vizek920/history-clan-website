@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>شاعر رمضان</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ===================== VARIABLES ===================== */
+:root {
+  --night: #04080F;
+  --dark1: #0A1628;
+  --dark2: #0F1F3D;
+  --dark3: #162950;
+  --gold: #D4A843;
+  --gold2: #F0C96A;
+  --gold3: #B8860B;
+  --teal: #1A7A6A;
+  --teal2: #26B59A;
+  --cream: #F5E6C8;
+  --text: #EDE0C4;
+  --muted: #8A9BB5;
+  --team1: #C44E2A;
+  --team1b: #FF7752;
+  --team2: #1A6B9A;
+  --team2b: #3BA8DB;
+  --correct: #2ECC71;
+  --wrong: #E74C3C;
+  --star: #FFD700;
+  --panel: rgba(15,31,61,0.85);
+  --border: rgba(212,168,67,0.25);
+  --glow: rgba(212,168,67,0.15);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; overflow:hidden; }
+
+body {
+  background: var(--night);
+  color: var(--text);
+  font-family: 'Tajawal', sans-serif;
+  position: relative;
+}
+
+/* ===================== ANIMATED SKY ===================== */
+#sky-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ===================== LANTERNS ===================== */
+.lanterns-container {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1;
+  pointer-events: none;
+  height: 200px;
+}
+
+.lantern-rope {
+  position: absolute;
+  top: 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.rope-line {
+  width: 2px;
+  background: linear-gradient(to bottom, var(--gold3), transparent);
+  transform-origin: top center;
+}
+
+.lantern {
+  position: absolute;
+  top: 40px;
+  transform: translateX(-50%);
+  animation: lanternSwing 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 12px rgba(212,168,67,0.6));
+}
+
+.lantern svg { display: block; }
+
+@keyframes lanternSwing {
+  0%, 100% { transform: translateX(-50%) rotate(-8deg); }
+  50% { transform: translateX(-50%) rotate(8deg); }
+}
+
+.lantern:nth-child(2n) { animation-duration: 5s; animation-delay: -1s; }
+.lantern:nth-child(3n) { animation-duration: 3.5s; animation-delay: -2s; }
+
+/* ===================== ROPE STRING ===================== */
+.rope-string {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ===================== MOON ===================== */
+.moon-container {
+  position: fixed;
+  top: 30px;
+  left: 60px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.moon {
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle at 35% 35%, #FFF9E6, #FFD700 40%, #D4A843 80%);
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(255,215,0,0.4), 0 0 80px rgba(212,168,67,0.2);
+  animation: moonGlow 4s ease-in-out infinite;
+  position: relative;
+}
+
+.moon::after {
+  content: '';
+  position: absolute;
+  top: 8px; left: 12px;
+  width: 58px;
+  height: 58px;
+  background: var(--dark1);
+  border-radius: 50%;
+  transform: translate(12px, -8px);
+}
+
+@keyframes moonGlow {
+  0%, 100% { box-shadow: 0 0 30px rgba(255,215,0,0.4), 0 0 80px rgba(212,168,67,0.2); }
+  50% { box-shadow: 0 0 50px rgba(255,215,0,0.6), 0 0 120px rgba(212,168,67,0.35); }
+}
+
+/* ===================== PAGES ===================== */
+.page {
+  display: none;
+  position: relative;
+  z-index: 10;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.page.active { display: flex; flex-direction: column; }
+
+/* ===================== SCROLLBAR ===================== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--dark1); }
+::-webkit-scrollbar-thumb { background: var(--gold3); border-radius: 3px; }
+
+/* ===================== LANDING ===================== */
+#page-landing {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 100px 2rem 2rem;
+  gap: 1.5rem;
+}
+
+.bismillah {
+  font-family: 'Amiri', serif;
+  font-size: 1.4rem;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  opacity: 0.8;
+  animation: fadeInDown 1s ease forwards;
+}
+
+.landing-title {
+  font-family: 'Amiri', serif;
+  font-size: clamp(3rem, 9vw, 6rem);
+  background: linear-gradient(135deg, var(--gold2), var(--gold), #C8960A);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  line-height: 1.1;
+  animation: fadeInDown 1.2s ease forwards;
+  filter: drop-shadow(0 0 30px rgba(212,168,67,0.5));
+}
+
+.landing-sub {
+  color: var(--muted);
+  font-size: 1rem;
+  letter-spacing: 0.3em;
+  animation: fadeInDown 1.4s ease forwards;
+}
+
+.ornament {
+  font-size: 2rem;
+  color: var(--gold);
+  animation: fadeInDown 1s ease forwards;
+  letter-spacing: 0.5rem;
+}
+
+@keyframes fadeInDown {
+  from { opacity:0; transform: translateY(-20px); }
+  to { opacity:1; transform: translateY(0); }
+}
+
+/* ===== TEAM SETUP ===== */
+.teams-wrap {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: fadeInUp 1.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+  from { opacity:0; transform: translateY(20px); }
+  to { opacity:1; transform: translateY(0); }
+}
+
+.team-setup-card {
+  background: var(--panel);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.8rem 2.2rem;
+  width: 240px;
+  position: relative;
+  overflow: hidden;
+}
+
+.team-setup-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 20px 20px 0 0;
+}
+
+.team-setup-card.t1::before { background: linear-gradient(90deg, var(--team1), var(--team1b)); }
+.team-setup-card.t2::before { background: linear-gradient(90deg, var(--team2), var(--team2b)); }
+
+.team-setup-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(212,168,67,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.ts-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  display: block;
+  text-align: center;
+}
+
+.ts-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-align: center;
+  margin-bottom: 0.8rem;
+}
+
+.team-setup-card.t1 .ts-label { color: var(--team1b); }
+.team-setup-card.t2 .ts-label { color: var(--team2b); }
+
+.ts-input {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: 'Tajawal', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  padding: 0.6rem 1rem;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.ts-input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 15px rgba(212,168,67,0.2);
+}
+
+.ts-input::placeholder { color: var(--muted); font-weight: 400; }
+
+/* ===== BUTTONS ===== */
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold2), var(--gold), var(--gold3));
+  color: var(--night);
+  border: none;
+  padding: 1rem 3.5rem;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  border-radius: 50px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 4px 25px rgba(212,168,67,0.35);
+  animation: fadeInUp 1.8s ease forwards;
+}
+
+.btn-gold:hover {
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: 0 10px 40px rgba(212,168,67,0.55);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--gold);
+  padding: 0.6rem 1.8rem;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.btn-ghost:hover { background: var(--glow); border-color: var(--gold); }
+
+/* ===== ADMIN LINK ===== */
+.admin-link {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 100;
+  font-size: 0.75rem;
+  color: var(--muted);
+  cursor: pointer;
+  text-decoration: none;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  transition: all 0.2s;
+}
+
+.admin-link:hover { color: var(--gold); border-color: var(--gold); }
+
+/* ===================== ADMIN PANEL ===================== */
+#page-admin {
+  padding: 2rem;
+  gap: 1.5rem;
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-title {
+  font-family: 'Amiri', serif;
+  font-size: 1.8rem;
+  color: var(--gold);
+  flex: 1;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.admin-card {
+  background: var(--panel);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold3), var(--gold2), var(--gold3));
+}
+
+.admin-card-title {
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-row:last-child { margin-bottom: 0; }
+
+.admin-row label {
+  font-size: 0.9rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.admin-number {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-number button {
+  width: 28px; height: 28px;
+  background: rgba(212,168,67,0.1);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--gold);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.admin-number button:hover { background: rgba(212,168,67,0.25); }
+
+.admin-number input {
+  width: 55px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--gold2);
+  font-family: 'Tajawal', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0.3rem;
+  text-align: center;
+  outline: none;
+}
+
+.admin-toggle {
+  position: relative;
+  width: 46px; height: 24px;
+  cursor: pointer;
+}
+
+.admin-toggle input { display: none; }
+
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--dark3);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  transition: background 0.3s;
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px; right: 3px;
+  width: 18px; height: 18px;
+  background: var(--muted);
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+
+.admin-toggle input:checked ~ .toggle-track { background: rgba(212,168,67,0.3); border-color: var(--gold); }
+.admin-toggle input:checked ~ .toggle-thumb { right: calc(100% - 21px); background: var(--gold); box-shadow: 0 0 8px rgba(212,168,67,0.6); }
+
+.admin-save-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.btn-save {
+  background: linear-gradient(135deg, var(--gold2), var(--gold));
+  color: var(--night);
+  border: none;
+  padding: 0.7rem 2rem;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.25s;
+  box-shadow: 0 3px 15px rgba(212,168,67,0.3);
+}
+
+.btn-save:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(212,168,67,0.5); }
+
+.save-toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: linear-gradient(135deg, var(--teal), var(--teal2));
+  color: white;
+  padding: 0.8rem 2rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  z-index: 999;
+}
+
+.save-toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ===================== CATEGORIES ===================== */
+#page-categories {
+  padding: 1.5rem;
+  gap: 1rem;
+}
+
+.top-bar {
+  display: flex;
+  gap: 1rem;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.score-card {
+  flex: 1;
+  min-width: 150px;
+  background: var(--panel);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1rem 1.4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.score-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+
+.score-card.t1::before { background: linear-gradient(90deg, var(--team1), var(--team1b)); }
+.score-card.t2::before { background: linear-gradient(90deg, var(--team2), var(--team2b)); }
+
+.score-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  margin-bottom: 0.3rem;
+}
+
+.score-card.t1 .score-label { color: var(--team1b); }
+.score-card.t2 .score-label { color: var(--team2b); }
+
+.score-name { font-size: 1rem; font-weight: 700; margin-bottom: 0.2rem; }
+
+.score-pts {
+  font-size: 2.2rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--gold2);
+}
+
+.score-hearts { font-size: 0.9rem; margin-top: 0.3rem; letter-spacing: 2px; }
+
+.cats-title {
+  font-family: 'Amiri', serif;
+  font-size: 1.4rem;
+  color: var(--gold);
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.cats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.2rem;
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.cat-card {
+  background: var(--panel);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cat-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(212,168,67,0.06) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.cat-card:hover:not(.done) {
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(212,168,67,0.5);
+  box-shadow: 0 16px 50px rgba(212,168,67,0.18), 0 0 0 1px rgba(212,168,67,0.15);
+}
+
+.cat-card:hover::before { opacity: 1; }
+
+.cat-card.done {
+  opacity: 0.5;
+  cursor: default;
+  filter: grayscale(0.4);
+}
+
+.cat-card.done::after {
+  content: '✓ مكتملة';
+  position: absolute;
+  top: 12px; left: 12px;
+  font-size: 0.7rem;
+  color: var(--correct);
+  background: rgba(46,204,113,0.15);
+  border: 1px solid rgba(46,204,113,0.3);
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  letter-spacing: 0.1em;
+}
+
+.cat-icon { font-size: 3.5rem; display: block; margin-bottom: 1rem; }
+.cat-name { font-family: 'Amiri', serif; font-size: 1.5rem; color: var(--gold); margin-bottom: 0.5rem; }
+.cat-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.6; margin-bottom: 1rem; }
+
+.cat-pts-badge {
+  display: inline-block;
+  background: rgba(212,168,67,0.12);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 0.25rem 0.8rem;
+  font-size: 0.78rem;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+
+.cat-progress {
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px;
+  height: 4px;
+  overflow: hidden;
+}
+
+.cat-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold3), var(--gold2));
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+
+/* ===================== QUESTION ===================== */
+#page-question {
+  padding: 1.5rem;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+
+.q-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 860px;
+}
+
+.btn-back {
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.5rem 1.2rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-back:hover { border-color: var(--gold); color: var(--gold); }
+
+.q-meta { flex: 1; text-align: center; }
+.q-cat-label { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.2em; }
+.q-counter { font-size: 1.1rem; font-weight: 800; color: var(--gold); }
+
+/* Progress bar */
+.q-pbar {
+  width: 100%;
+  max-width: 860px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px;
+  height: 5px;
+  overflow: hidden;
+}
+
+.q-pbar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold3), var(--gold2));
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* Hearts row */
+.hearts-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 860px;
+  gap: 1rem;
+}
+
+.team-hearts-box {
+  flex: 1;
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.team-hearts-box.t1 { border-color: rgba(196,78,42,0.35); }
+.team-hearts-box.t2 { border-color: rgba(26,107,154,0.35); }
+
+.th-name { font-size: 0.82rem; font-weight: 700; }
+.team-hearts-box.t1 .th-name { color: var(--team1b); }
+.team-hearts-box.t2 .th-name { color: var(--team2b); }
+
+.th-hearts { font-size: 1rem; letter-spacing: 2px; }
+
+/* Turn indicator */
+.turn-ind {
+  width: 100%;
+  max-width: 860px;
+  text-align: center;
+  padding: 0.55rem 1rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.turn-ind.t1 {
+  background: rgba(196,78,42,0.12);
+  border: 1px solid rgba(196,78,42,0.3);
+  color: var(--team1b);
+}
+
+.turn-ind.t2 {
+  background: rgba(26,107,154,0.12);
+  border: 1px solid rgba(26,107,154,0.3);
+  color: var(--team2b);
+}
+
+/* Question card */
+.q-card {
+  width: 100%;
+  max-width: 860px;
+  background: var(--panel);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2rem 2.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.q-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.q-label { font-size: 0.72rem; letter-spacing: 0.25em; color: var(--muted); margin-bottom: 0.8rem; }
+
+.q-text {
+  font-family: 'Amiri', serif;
+  font-size: clamp(1.2rem, 2.5vw, 1.7rem);
+  line-height: 2;
+  color: var(--cream);
+}
+
+/* Answers */
+.ans-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+  width: 100%;
+  max-width: 860px;
+}
+
+.ans-btn {
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 1rem 1.5rem;
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: 'Amiri', serif;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  text-align: center;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.ans-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(212,168,67,0.08), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.ans-btn:hover:not(:disabled) {
+  border-color: var(--gold);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(212,168,67,0.15);
+}
+
+.ans-btn:hover:not(:disabled)::before { opacity: 1; }
+.ans-btn:disabled { cursor: default; }
+
+.ans-btn.correct {
+  background: rgba(46,204,113,0.15);
+  border-color: var(--correct);
+  color: #6EDBA0;
+}
+
+.ans-btn.wrong {
+  background: rgba(231,76,60,0.15);
+  border-color: var(--wrong);
+  color: #F1948A;
+}
+
+.ans-letter {
+  position: absolute;
+  top: 8px; right: 12px;
+  font-size: 0.65rem;
+  color: var(--muted);
+  font-family: 'Tajawal', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+/* ===================== RESULT OVERLAY ===================== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4,8,15,0.75);
+  backdrop-filter: blur(12px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.overlay.show { display: flex; }
+
+.result-box {
+  background: var(--dark2);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 3rem 3.5rem;
+  text-align: center;
+  max-width: 420px;
+  width: 90%;
+  position: relative;
+  overflow: hidden;
+  animation: popIn 0.45s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+.result-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+
+.result-box.correct-box::before { background: linear-gradient(90deg, transparent, var(--correct), transparent); }
+.result-box.wrong-box::before { background: linear-gradient(90deg, transparent, var(--wrong), transparent); }
+
+@keyframes popIn {
+  from { transform: scale(0.4) rotate(-5deg); opacity: 0; }
+  to { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.res-icon { font-size: 4.5rem; margin-bottom: 1rem; display: block; }
+.res-title { font-family: 'Amiri', serif; font-size: 2rem; color: var(--gold); margin-bottom: 0.5rem; }
+.res-sub { color: var(--muted); margin-bottom: 2rem; font-size: 0.95rem; line-height: 1.6; }
+
+.res-pts-badge {
+  display: inline-block;
+  background: rgba(212,168,67,0.15);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 0.3rem 1rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--gold2);
+  margin-bottom: 1.5rem;
+}
+
+/* ===================== FINAL PAGE ===================== */
+#page-final {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 100px 2rem 2rem;
+  gap: 1.5rem;
+}
+
+.trophy-anim {
+  font-size: 7rem;
+  animation: trophyBounce 1s cubic-bezier(0.34,1.56,0.64,1) forwards, float 2.5s 1s ease-in-out infinite;
+  filter: drop-shadow(0 0 30px rgba(255,215,0,0.5));
+}
+
+@keyframes trophyBounce {
+  from { transform: translateY(-100px) scale(0); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.final-title {
+  font-family: 'Amiri', serif;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  background: linear-gradient(135deg, var(--gold2), var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.final-winner-name {
+  font-size: 1.5rem;
+  font-weight: 900;
+  padding: 0.8rem 2.5rem;
+  border-radius: 50px;
+  margin-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.final-winner-name.t1 {
+  background: rgba(196,78,42,0.2);
+  border: 1px solid rgba(196,78,42,0.4);
+  color: var(--team1b);
+}
+
+.final-winner-name.t2 {
+  background: rgba(26,107,154,0.2);
+  border: 1px solid rgba(26,107,154,0.4);
+  color: var(--team2b);
+}
+
+.final-winner-name.tie {
+  background: rgba(212,168,67,0.15);
+  border: 1px solid var(--border);
+  color: var(--gold2);
+}
+
+.final-score-row {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.final-score-card {
+  background: var(--panel);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.5rem 3rem;
+  min-width: 180px;
+  position: relative;
+  overflow: hidden;
+}
+
+.final-score-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+
+.final-score-card.t1::before { background: linear-gradient(90deg, var(--team1), var(--team1b)); }
+.final-score-card.t2::before { background: linear-gradient(90deg, var(--team2), var(--team2b)); }
+
+.fs-name { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.3rem; }
+.fs-pts { font-size: 3.5rem; font-weight: 900; color: var(--gold2); line-height: 1; }
+.fs-label { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
+
+/* ===================== PARTICLES ===================== */
+.particle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 5;
+  animation: particleFly 1.5s ease-out forwards;
+}
+
+@keyframes particleFly {
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
+}
+
+/* ===================== GEOMETRIC ORNAMENT ===================== */
+.geo-ornament {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.04;
+}
+
+.geo-ornament svg { fill: var(--gold); }
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 600px) {
+  .ans-grid { grid-template-columns: 1fr; }
+  .teams-wrap { flex-direction: column; align-items: center; }
+  .hearts-row { flex-direction: column; }
+  .top-bar { flex-direction: column; }
+  .admin-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== ANIMATED SKY ===== -->
+<canvas id="sky-canvas"></canvas>
+
+<!-- ===== MOON ===== -->
+<div class="moon-container">
+  <div class="moon"></div>
+</div>
+
+<!-- ===== GEOMETRIC ORNAMENT ===== -->
+<div class="geo-ornament" style="top:10%;right:5%;width:200px;height:200px;">
+  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="100,10 130,80 200,80 145,125 165,195 100,155 35,195 55,125 0,80 70,80" stroke="currentColor" stroke-width="1" fill="none"/>
+    <circle cx="100" cy="100" r="60" stroke="currentColor" stroke-width="0.5" fill="none"/>
+    <polygon points="100,40 160,160 40,160" stroke="currentColor" stroke-width="0.5" fill="none"/>
+  </svg>
+</div>
+
+<div class="geo-ornament" style="bottom:15%;left:3%;width:150px;height:150px;opacity:0.03;">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="10" width="80" height="80" stroke="currentColor" stroke-width="1" fill="none" transform="rotate(45 50 50)"/>
+    <rect x="20" y="20" width="60" height="60" stroke="currentColor" stroke-width="0.5" fill="none"/>
+    <circle cx="50" cy="50" r="30" stroke="currentColor" stroke-width="0.5" fill="none"/>
+  </svg>
+</div>
+
+<!-- ===== LANTERNS STRING ===== -->
+<svg class="rope-string" viewBox="0 0 1400 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M0,5 Q175,45 350,5 Q525,45 700,5 Q875,45 1050,5 Q1225,45 1400,5" stroke="#D4A843" stroke-width="1.5" fill="none" opacity="0.6"/>
+</svg>
+<div class="lanterns-container" id="lanterns-container"></div>
+
+<!-- ====================================================
+     PAGES
+===================================================== -->
+
+<!-- ===== LANDING ===== -->
+<div id="page-landing" class="page active">
+  <div class="ornament">❧ ✦ ❧</div>
+  <div class="bismillah">بسم الله الرحمن الرحيم</div>
+  <h1 class="landing-title">شاعر رمضان</h1>
+  <p class="landing-sub">مسابقة الشعر والأدب العربي</p>
+  <div class="ornament" style="transform: rotate(180deg); font-size:1rem; opacity:0.5;">───── ✦ ─────</div>
+
+  <div class="teams-wrap">
+    <div class="team-setup-card t1">
+      <span class="ts-icon">⚔️</span>
+      <div class="ts-label">الفريق الأول</div>
+      <input class="ts-input" id="team1-name" placeholder="اسم فريقك" maxlength="18">
+    </div>
+    <div class="team-setup-card t2">
+      <span class="ts-icon">🛡️</span>
+      <div class="ts-label">الفريق الثاني</div>
+      <input class="ts-input" id="team2-name" placeholder="اسم فريقك" maxlength="18">
+    </div>
+  </div>
+
+  <button class="btn-gold" onclick="startGame()">ابدأ المسابقة ✦</button>
+</div>
+
+<!-- ===== ADMIN PANEL ===== -->
+<div id="page-admin" class="page">
+  <div class="admin-header">
+    <button class="btn-ghost" onclick="showPage('page-landing')">← رجوع</button>
+    <h2 class="admin-title">⚙️ لوحة التحكم</h2>
+  </div>
+
+  <div class="admin-grid" id="admin-cats-grid">
+    <!-- Generated by JS -->
+  </div>
+
+  <div class="admin-card">
+    <div class="admin-card-title">⚙️ إعدادات اللعبة العامة</div>
+    <div class="admin-row">
+      <label>عدد القلوب لكل فريق في كل فئة</label>
+      <div class="admin-number">
+        <button onclick="adjustVal('cfg-hearts',-1)">−</button>
+        <input type="number" id="cfg-hearts" value="3" min="1" max="9">
+        <button onclick="adjustVal('cfg-hearts',1)">+</button>
+      </div>
+    </div>
+    <div class="admin-row">
+      <label>عدد الأسئلة لكل فئة</label>
+      <div class="admin-number">
+        <button onclick="adjustVal('cfg-maxq',-1)">−</button>
+        <input type="number" id="cfg-maxq" value="10" min="1" max="10">
+        <button onclick="adjustVal('cfg-maxq',1)">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-save-row">
+    <button class="btn-ghost" onclick="resetAdmin()">إعادة الضبط</button>
+    <button class="btn-save" onclick="saveAdmin()">💾 حفظ الإعدادات</button>
+  </div>
+</div>
+
+<!-- ===== CATEGORIES ===== -->
+<div id="page-categories" class="page">
+  <div class="top-bar">
+    <div class="score-card t1">
+      <div class="score-label">الفريق الأول</div>
+      <div class="score-name" id="sc-name-1"></div>
+      <div class="score-pts" id="sc-pts-1">0</div>
+      <div class="score-hearts" id="sc-hearts-1"></div>
+    </div>
+    <div class="score-card t2">
+      <div class="score-label">الفريق الثاني</div>
+      <div class="score-name" id="sc-name-2"></div>
+      <div class="score-pts" id="sc-pts-2">0</div>
+      <div class="score-hearts" id="sc-hearts-2"></div>
+    </div>
+  </div>
+
+  <div class="cats-title">✦ اختر الفئة ✦</div>
+  <div class="cats-grid" id="cats-grid"></div>
+</div>
+
+<!-- ===== QUESTION ===== -->
+<div id="page-question" class="page">
+  <div class="q-header">
+    <button class="btn-back" onclick="goToCategories()">← الفئات</button>
+    <div class="q-meta">
+      <div class="q-cat-label" id="q-cat-label"></div>
+      <div class="q-counter" id="q-counter"></div>
+    </div>
+  </div>
+  <div class="q-pbar"><div class="q-pbar-fill" id="q-pbar-fill"></div></div>
+  <div class="hearts-row">
+    <div class="team-hearts-box t1">
+      <span class="th-name" id="qt-name-1"></span>
+      <span class="th-hearts" id="qt-hearts-1"></span>
+    </div>
+    <div class="team-hearts-box t2">
+      <span class="th-name" id="qt-name-2"></span>
+      <span class="th-hearts" id="qt-hearts-2"></span>
+    </div>
+  </div>
+  <div class="turn-ind" id="turn-ind"></div>
+  <div class="q-card">
+    <div class="q-label" id="q-label">السؤال</div>
+    <div class="q-text" id="q-text"></div>
+  </div>
+  <div class="ans-grid" id="ans-grid"></div>
+</div>
+
+<!-- ===== FINAL ===== -->
+<div id="page-final" class="page">
+  <div class="trophy-anim">🏆</div>
+  <h1 class="final-title">انتهت المسابقة!</h1>
+  <div id="final-winner-wrap"></div>
+  <div class="final-score-row">
+    <div class="final-score-card t1">
+      <div class="fs-name" id="fs-name-1"></div>
+      <div class="fs-pts" id="fs-pts-1"></div>
+      <div class="fs-label">نقطة</div>
+    </div>
+    <div class="final-score-card t2">
+      <div class="fs-name" id="fs-name-2"></div>
+      <div class="fs-pts" id="fs-pts-2"></div>
+      <div class="fs-label">نقطة</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+    <button class="btn-gold" onclick="restartGame()">🔄 جولة جديدة</button>
+    <button class="btn-ghost" onclick="showPage('page-landing')">🏠 الرئيسية</button>
+  </div>
+</div>
+
+<!-- ===== RESULT OVERLAY ===== -->
+<div class="overlay" id="overlay">
+  <div class="result-box" id="result-box">
+    <span class="res-icon" id="res-icon"></span>
+    <div class="res-title" id="res-title"></div>
+    <div class="res-sub" id="res-sub"></div>
+    <div class="res-pts-badge" id="res-pts"></div>
+    <button class="btn-gold" id="res-btn" onclick="nextStep()"></button>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="save-toast" id="save-toast">✅ تم حفظ الإعدادات!</div>
+
+<!-- ===== ADMIN LINK ===== -->
+<a class="admin-link" onclick="showPage('page-admin')">⚙️ لوحة التحكم</a>
+
+<!-- ====================================================
+     JAVASCRIPT
+===================================================== -->
+<script>
+// ============================================================
+//  QUESTIONS DATA
+// ============================================================
+const CATEGORIES_DATA = [
+  {
+    id: 'poet',
+    name: 'من هو الشاعر؟',
+    icon: '🎭',
+    desc: 'تعرّف على الشاعر من خلال أبياته',
+    questions: [
+      { q: 'قال أحدهم:\n"أنا الذي نظر الأعمى إلى أدبي ... وأسمعت كلماتي من به صمم"', choices: ['المتنبي','أبو تمام','البحتري','ابن الرومي'], correct: 0 },
+      { q: '"وما الدهر إلا من رواة قلائدي ... إذا قلت شعراً أصبح الدهر منشدا"', choices: ['عنترة بن شداد','المتنبي','امرؤ القيس','زهير بن أبي سلمى'], correct: 1 },
+      { q: '"خذوا من أيامكم قبل فنائها ... وبادروا الآجال قبل انقضائها"', choices: ['الشافعي','ابن القيم','ابن المبارك','الغزالي'], correct: 0 },
+      { q: 'صاحب معلقة:\n"قفا نبكِ من ذكرى حبيب ومنزل"', choices: ['زهير بن أبي سلمى','عمرو بن كلثوم','امرؤ القيس','لبيد بن ربيعة'], correct: 2 },
+      { q: '"على قدر أهل العزم تأتي العزائم ... وتأتي على قدر الكرام المكارم"', choices: ['أبو تمام','المتنبي','البحتري','ابن زيدون'], correct: 1 },
+      { q: '"حتام نحن نسيل دمعاً ... ونشكو الزمان لمن يصغي؟"', choices: ['نزار قباني','محمود درويش','أحمد شوقي','حافظ إبراهيم'], correct: 0 },
+      { q: 'من هو "شاعر النيل" الملقّب بهذا اللقب؟', choices: ['أحمد شوقي','حافظ إبراهيم','إيليا أبو ماضي','خليل جبران'], correct: 1 },
+      { q: 'صاحب قصيدة:\n"يا ليلُ الصبّ متى غده"', choices: ['ابن زيدون','ابن الفارض','ابن حزم','ابن خفاجة'], correct: 1 },
+      { q: '"نحن قوم لا توسط عندنا ... لنا الصدر دون العالمين أو القبر"', choices: ['المتنبي','عنترة','الفرزدق','جرير'], correct: 0 },
+      { q: '"بلادي وإن جارت عليّ عزيزة ... وأهلي وإن ضنّوا عليّ كرام"', choices: ['الشافعي','إيليا أبو ماضي','أحمد شوقي','أبو الطيب المتنبي'], correct: 0 }
+    ]
+  },
+  {
+    id: 'complete',
+    name: 'أكمل البيت',
+    icon: '✍️',
+    desc: 'أتمّ الشطر الثاني للبيت الشعري',
+    questions: [
+      { q: '"وما الحياة سوى حلم يسرّ به ...\n__________"', choices: ['حتى إذا انقضت الأحلام يبكينا','إلى ذهاب وإشراق وإظلام','والموت حق على كل المخلوقات','صاحٍ وما الدهر إلا لهو ولعب'], correct: 0 },
+      { q: '"على قدر أهل العزم تأتي العزائم ...\n__________"', choices: ['وتأتي على قدر الكرام المكارم','وينال الفتى ما يبتغيه بصبره','ومن يطلب العلياء لا بد ناله','وللمرء ما أحبب وللدهر ما يأتي'], correct: 0 },
+      { q: '"العلم في الصغر كالنقش على الحجر ...\n__________"', choices: ['يبقى على مر الدهور والقدر','فاطلب علومك ما دامت لك فرصة','والجهل داء يرديه في حفرة','لا يمحوه المطر ولا يطمسه الزمن'], correct: 0 },
+      { q: '"إذا كنت ذا رأي فكن ذا عزيمة ...\n__________"', choices: ['فإن فساد الرأي أن تتردد','وأقدم على الأمر الذي تستقيم به','ولا تكن في أمورك مترددًا','وسارع إلى الخير ولا تتوانَ'], correct: 0 },
+      { q: '"وما شيء إذا فكّرت فيه ...\n__________"', choices: ['بعزيز وكل الأمر في يد خالقه','بأبقى من العلم والفضل والكرم','أقر للعين من وطن الإنسان','يساوي شيء إلا حسن الأخلاق'], correct: 2 },
+      { q: '"قد يُدرك المتأني بعض حاجته ...\n__________"', choices: ['وقد يكون مع المستعجل الزلل','لكن لكل أمر مواقيته','والنجح في التؤدة لا في العجلة','وما الحياة إلا سعي ومثابرة'], correct: 0 },
+      { q: '"لكل داء دواء يُستطبّ به ...\n__________"', choices: ['إلا الحماقة أعيت من يداويها','والصبر يبلغ ما لا يبلغ الجزع','والله يشفي من الآلام ما تسع','ومن بحث عن الشفاء وجده قريبا'], correct: 0 },
+      { q: '"ألا كل شيء ما خلا الله باطل ...\n__________"', choices: ['وكل نعيم لا محالة زائل','والمرء في الدنيا لهو وزينة','وما خُلق الإنسان إلا ليعبدا','إلى الله تصير الأمور وتُردّ'], correct: 0 },
+      { q: '"لو كان يقعد فوق الشمس من كرمٍ ...\n__________"', choices: ['لقعد اليوم المهلّب أو ولده','لاحتل أعلاها الكريم المفضّل','لرقي إليها كل نفس شريفة','ما كان يصله الليل ولا المطر'], correct: 0 },
+      { q: '"وفي الليالي إذا ما الهم أرّقني ...\n__________"', choices: ['أُعارض النجم حتى يطلع الفجر','رحت أبكي على ما ضاع من عمري','ناجيت ربي وأبثثت الشكوى له','أُحصي النجوم وأسألها عن رفيق'], correct: 0 }
+    ]
+  },
+  {
+    id: 'topic',
+    name: 'موضوع البيت',
+    icon: '📖',
+    desc: 'حدّد الغرض الشعري للبيت',
+    questions: [
+      { q: '"أنا ابن الذين حموا عبسًا وغيّروا ... بسيف الوغى ما كان من عادة البخل"', choices: ['الرثاء','الفخر والحماسة','الغزل','الهجاء'], correct: 1 },
+      { q: '"تذكّر حين تلقى الله أنك لم تدُم ... على حال والأيام ليس تدوم"', choices: ['الزهد والحكمة','المدح','الرثاء','الوصف'], correct: 0 },
+      { q: '"أُحبك يا سُعاد حبًا يشبه ... المطر الذي يهطل بعد الجفاف"', choices: ['الرثاء','الهجاء','الغزل والنسيب','الفخر'], correct: 2 },
+      { q: '"توفيت الآمال بعد محمد ... وأصبح في شغل عن السفر السفر"', choices: ['الرثاء','المدح','الزهد','الغزل'], correct: 0 },
+      { q: '"أرى المال عند الباخلين بضاعة ... تحول كثيراً دون ذي الحسب الوفر"', choices: ['المدح','الذم والهجاء','الفخر','الوعظ والإرشاد'], correct: 3 },
+      { q: '"مررنا بدار الحي حيث تحلّوا ... فأثبت قلبي أعين الشوق حسّرا"', choices: ['الوصف الطبيعي','الغزل والشوق','الرثاء','الهجاء'], correct: 1 },
+      { q: '"وما الخيل إلا كالصديق قليلة ... وإن كثرت في عين من لا يجرّب"', choices: ['وصف الطبيعة','الحكمة والتأمل','الهجاء','المدح'], correct: 1 },
+      { q: '"نديمي هلمّ إلى الراح وانظر ... إلى البدر كيف يجول في الفلك"', choices: ['الزهد','الخمريات والمجون','الرثاء','المدح'], correct: 1 },
+      { q: '"سلامٌ من صبا بردى أرقّ ... ودمع لا يكفكف يا دمشق"', choices: ['الشوق والحنين','الهجاء','الفخر','الغزل'], correct: 0 },
+      { q: '"وددت بأن الله يجعل بيننا ... جبال الرمال ثم تمنعني منكم"', choices: ['المدح','الهجاء والذم','الشوق','الزهد'], correct: 1 }
+    ]
+  },
+  {
+    id: 'error',
+    name: 'أوجد الخطأ',
+    icon: '🔍',
+    desc: 'اكتشف الخطأ في البيت الشعري',
+    questions: [
+      { q: '"وما الحياة سوى حلمٌ يسر به ... حتى إذا انقضت الأحلام يبكينا"\nأين الخطأ؟', choices: ['حلمٌ (يجب: حلمٍ)','الحياة (يجب: الحياتُ)','يبكينا (يجب: تبكينا)','لا خطأ في البيت'], correct: 0 },
+      { q: '"على قدر أهل العزم تأتي العظائم ... وتأتي على قدر الكرام المكارم"\nأين الخطأ؟', choices: ['العظائم (الصحيح: العزائم)','الكرام (الصحيح: الأكرام)','تأتي (الصحيح: يأتي)','لا خطأ في البيت'], correct: 0 },
+      { q: '"ألا كل شيء ما خلا اللهَ باطلٌ ... وكل نعيمٍ لا محالةً زائلُ"\nأين الخطأ؟', choices: ['اللهَ (يجب: اللهِ)','باطلٌ (يجب: باطلٍ)','نعيمٍ (يجب: نعيمٌ)','لا خطأ في البيت'], correct: 3 },
+      { q: '"إذا كنتَ ذا رأيٍ فكن ذا عزيمةٍ ... فإن فسادَ الأمر أن تتردد"\nأين الخطأ؟', choices: ['تترددَ يجب أن ترفع','الأمر (يجب: الرأي)','فسادَ (يجب: فسادُ)','لا خطأ في البيت'], correct: 1 },
+      { q: '"العلم في الصغر كالنقش على الحجرة ... يبقى على مر الدهور والقدر"\nأين الخطأ؟', choices: ['الحجرة (الصحيح: الحجر)','الصغر (الصحيح: الكبر)','الدهور (الصحيح: الدهر)','يبقى (الصحيح: تبقى)'], correct: 0 },
+      { q: '"قد يُدرك المتأني بعض حاجتهُ ... وقد يكون مع المستعجل الزللُ"\nأين الخطأ؟', choices: ['حاجتهُ (يجب: حاجتِهِ)','الزللُ (يجب: الزللِ)','المستعجل (يجب: العجول)','لا خطأ في البيت'], correct: 3 },
+      { q: '"لو كان يقعد فوق الشمس من شرفٍ ... لقعد اليوم المهلّب أو ولده"\nأين الخطأ؟', choices: ['شرف (يجب: كرم)','يقعد (يجب: يجلس)','ولده (يجب: أولاده)','لا خطأ في البيت'], correct: 0 },
+      { q: '"لكل داءٍ دواءٌ يُستطبّ به ... إلا الغباوة أعيت من يداويها"\nأين الخطأ؟', choices: ['الغباوة (الصحيح: الحماقة)','يداويها (الصحيح: يعالجها)','يُستطب (الصحيح: يُطلب)','لا خطأ في البيت'], correct: 0 },
+      { q: '"وما شيء إذا فكّرت فيه ... أقرَّ للعين من وطن الإنسانِ"\nأين الخطأ؟', choices: ['الإنسانِ (يجب الضم)','أقرَّ (يجب: أبرَّ)','وطن (يجب: بلد)','لا خطأ في البيت'], correct: 3 },
+      { q: '"نديمي هلمَّ إلى الراح وانظر ... إلى القمر كيف يجول في الفلكِ"\nأين الخطأ؟', choices: ['القمر (الصحيح: البدر)','الراح (الصحيح: الرياح)','يجول (الصحيح: يدور)','لا خطأ في البيت'], correct: 0 }
+    ]
+  }
+];
+
+// ============================================================
+//  CONFIG (editable via admin)
+// ============================================================
+let CONFIG = {
+  hearts: 3,
+  maxQ: 10,
+  catPoints: { poet: 10, complete: 15, topic: 10, error: 20 }
+};
+
+// ============================================================
+//  STATE
+// ============================================================
+let G = {
+  teams: [
+    { name: 'الفريق الأول', score: 0, hearts: {} },
+    { name: 'الفريق الثاني', score: 0, hearts: {} }
+  ],
+  progress: {},
+  completed: {},
+  currentCat: null,
+  currentQ: 0,
+  turn: 0,
+  waiting: false
+};
+
+function initHearts() {
+  CATEGORIES_DATA.forEach(c => {
+    G.teams[0].hearts[c.id] = CONFIG.hearts;
+    G.teams[1].hearts[c.id] = CONFIG.hearts;
+    G.progress[c.id] = 0;
+    G.completed[c.id] = false;
+  });
+}
+
+// ============================================================
+//  HELPERS
+// ============================================================
+function heartsStr(n, max) {
+  let s = '';
+  for (let i = 0; i < max; i++) s += i < n ? '❤️' : '🖤';
+  return s;
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function adjustVal(id, delta) {
+  const el = document.getElementById(id);
+  const min = parseInt(el.min) || 1;
+  const max = parseInt(el.max) || 99;
+  el.value = Math.max(min, Math.min(max, parseInt(el.value || 0) + delta));
+}
+
+// ============================================================
+//  ADMIN PANEL
+// ============================================================
+function buildAdminPanel() {
+  const grid = document.getElementById('admin-cats-grid');
+  grid.innerHTML = '';
+  CATEGORIES_DATA.forEach(cat => {
+    const card = document.createElement('div');
+    card.className = 'admin-card';
+    card.innerHTML = `
+      <div class="admin-card-title">${cat.icon} ${cat.name}</div>
+      <div class="admin-row">
+        <label>نقاط الإجابة الصحيحة</label>
+        <div class="admin-number">
+          <button onclick="adjustVal('pts-${cat.id}', -5)">−</button>
+          <input type="number" id="pts-${cat.id}" value="${CONFIG.catPoints[cat.id]}" min="5" max="100" step="5">
+          <button onclick="adjustVal('pts-${cat.id}', 5)">+</button>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  document.getElementById('cfg-hearts').value = CONFIG.hearts;
+  document.getElementById('cfg-maxq').value = CONFIG.maxQ;
+}
+
+function saveAdmin() {
+  CATEGORIES_DATA.forEach(cat => {
+    const v = parseInt(document.getElementById(`pts-${cat.id}`).value);
+    if (v > 0) CONFIG.catPoints[cat.id] = v;
+  });
+  CONFIG.hearts = parseInt(document.getElementById('cfg-hearts').value) || 3;
+  CONFIG.maxQ = parseInt(document.getElementById('cfg-maxq').value) || 10;
+
+  const toast = document.getElementById('save-toast');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+function resetAdmin() {
+  CONFIG = { hearts: 3, maxQ: 10, catPoints: { poet: 10, complete: 15, topic: 10, error: 20 } };
+  buildAdminPanel();
+}
+
+// ============================================================
+//  GAME
+// ============================================================
+function startGame() {
+  G.teams[0].name = document.getElementById('team1-name').value.trim() || 'الفريق الأول';
+  G.teams[1].name = document.getElementById('team2-name').value.trim() || 'الفريق الثاني';
+  G.teams[0].score = 0;
+  G.teams[1].score = 0;
+  G.turn = 0;
+  G.currentCat = null;
+  G.progress = {};
+  G.completed = {};
+  initHearts();
+  updateScoreboard();
+  buildCatGrid();
+  showPage('page-categories');
+}
+
+function updateScoreboard() {
+  for (let t = 0; t < 2; t++) {
+    document.getElementById(`sc-name-${t+1}`).textContent = G.teams[t].name;
+    document.getElementById(`sc-pts-${t+1}`).textContent = G.teams[t].score;
+    const catId = G.currentCat;
+    let h = catId ? G.teams[t].hearts[catId] : CONFIG.hearts;
+    document.getElementById(`sc-hearts-${t+1}`).textContent = heartsStr(h, CONFIG.hearts);
+  }
+}
+
+function buildCatGrid() {
+  const grid = document.getElementById('cats-grid');
+  grid.innerHTML = '';
+  CATEGORIES_DATA.forEach(cat => {
+    const prog = G.progress[cat.id] || 0;
+    const maxQ = Math.min(CONFIG.maxQ, cat.questions.length);
+    const done = G.completed[cat.id];
+    const pct = (prog / maxQ) * 100;
+    const pts = CONFIG.catPoints[cat.id];
+
+    const div = document.createElement('div');
+    div.className = 'cat-card' + (done ? ' done' : '');
+    div.innerHTML = `
+      <span class="cat-icon">${cat.icon}</span>
+      <div class="cat-name">${cat.name}</div>
+      <div class="cat-desc">${cat.desc}</div>
+      <div class="cat-pts-badge">✦ ${pts} نقطة للإجابة الصحيحة</div>
+      <div class="cat-progress"><div class="cat-progress-fill" style="width:${pct}%"></div></div>
+    `;
+    if (!done) div.onclick = () => openCategory(cat.id);
+    grid.appendChild(div);
+  });
+}
+
+function goToCategories() {
+  G.currentCat = null;
+  updateScoreboard();
+  buildCatGrid();
+  showPage('page-categories');
+}
+
+function openCategory(catId) {
+  G.currentCat = catId;
+  G.currentQ = G.progress[catId] || 0;
+  showQuestion();
+}
+
+function showQuestion() {
+  const cat = CATEGORIES_DATA.find(c => c.id === G.currentCat);
+  const maxQ = Math.min(CONFIG.maxQ, cat.questions.length);
+  const qi = G.currentQ;
+  const q = cat.questions[qi];
+
+  document.getElementById('q-cat-label').textContent = cat.icon + ' ' + cat.name;
+  document.getElementById('q-counter').textContent = `السؤال ${qi + 1} / ${maxQ}`;
+  document.getElementById('q-pbar-fill').style.width = ((qi / maxQ) * 100) + '%';
+
+  // Hearts
+  document.getElementById('qt-name-1').textContent = G.teams[0].name;
+  document.getElementById('qt-name-2').textContent = G.teams[1].name;
+  document.getElementById('qt-hearts-1').textContent = heartsStr(G.teams[0].hearts[G.currentCat], CONFIG.hearts);
+  document.getElementById('qt-hearts-2').textContent = heartsStr(G.teams[1].hearts[G.currentCat], CONFIG.hearts);
+
+  // Turn
+  const ti = document.getElementById('turn-ind');
+  ti.textContent = `⚔ دور: ${G.teams[G.turn].name}`;
+  ti.className = 'turn-ind t' + (G.turn + 1);
+
+  // Question
+  document.getElementById('q-text').textContent = q.q;
+
+  // Answers
+  const grid = document.getElementById('ans-grid');
+  grid.innerHTML = '';
+  const letters = ['أ', 'ب', 'ج', 'د'];
+  q.choices.forEach((ch, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'ans-btn';
+    btn.innerHTML = `<span class="ans-letter">${letters[i]}</span>${ch}`;
+    btn.onclick = () => handleAnswer(i, q.correct, btn, grid.querySelectorAll('.ans-btn'));
+    grid.appendChild(btn);
+  });
+
+  showPage('page-question');
+}
+
+function handleAnswer(chosen, correct, btn, allBtns) {
+  if (G.waiting) return;
+  G.waiting = true;
+
+  allBtns.forEach(b => b.disabled = true);
+  allBtns[correct].classList.add('correct');
+  if (chosen !== correct) btn.classList.add('wrong');
+
+  const isCorrect = chosen === correct;
+  const pts = CONFIG.catPoints[G.currentCat];
+
+  if (isCorrect) {
+    G.teams[G.turn].score += pts;
+    spawnParticles();
+    showResult(true, pts);
+  } else {
+    if (G.teams[G.turn].hearts[G.currentCat] > 0) {
+      G.teams[G.turn].hearts[G.currentCat]--;
+    }
+    showResult(false, pts);
+  }
+}
+
+function showResult(isCorrect, pts) {
+  const overlay = document.getElementById('overlay');
+  const box = document.getElementById('result-box');
+  const maxQ = Math.min(CONFIG.maxQ, CATEGORIES_DATA.find(c => c.id === G.currentCat).questions.length);
+  const isLast = (G.progress[G.currentCat] + 1) >= maxQ;
+
+  box.className = 'result-box ' + (isCorrect ? 'correct-box' : 'wrong-box');
+  document.getElementById('res-icon').textContent = isCorrect ? '🎉' : '💔';
+  document.getElementById('res-title').textContent = isCorrect ? 'إجابة صحيحة!' : 'إجابة خاطئة';
+  document.getElementById('res-sub').textContent = isCorrect
+    ? `أحسنت! ${G.teams[G.turn].name} تستحق هذه النقاط`
+    : `خسر ${G.teams[G.turn].name} قلباً في هذه الفئة`;
+  document.getElementById('res-pts').textContent = isCorrect ? `+ ${pts} نقطة` : `تبقى: ${heartsStr(G.teams[G.turn].hearts[G.currentCat], CONFIG.hearts)}`;
+  document.getElementById('res-btn').textContent = isLast ? 'انتهت الفئة ✦' : 'السؤال التالي ←';
+
+  overlay.classList.add('show');
+}
+
+function nextStep() {
+  document.getElementById('overlay').classList.remove('show');
+  G.waiting = false;
+
+  G.progress[G.currentCat]++;
+  G.turn = G.turn === 0 ? 1 : 0;
+  updateScoreboard();
+
+  const cat = CATEGORIES_DATA.find(c => c.id === G.currentCat);
+  const maxQ = Math.min(CONFIG.maxQ, cat.questions.length);
+
+  const allDead = G.teams[0].hearts[G.currentCat] <= 0 && G.teams[1].hearts[G.currentCat] <= 0;
+
+  if (G.progress[G.currentCat] >= maxQ || allDead) {
+    G.completed[G.currentCat] = true;
+    if (CATEGORIES_DATA.every(c => G.completed[c.id])) {
+      showFinal();
+    } else {
+      goToCategories();
+    }
+    return;
+  }
+
+  G.currentQ = G.progress[G.currentCat];
+  showQuestion();
+}
+
+function showFinal() {
+  const s0 = G.teams[0].score, s1 = G.teams[1].score;
+  document.getElementById('fs-name-1').textContent = G.teams[0].name;
+  document.getElementById('fs-pts-1').textContent = s0;
+  document.getElementById('fs-name-2').textContent = G.teams[1].name;
+  document.getElementById('fs-pts-2').textContent = s1;
+
+  const wrap = document.getElementById('final-winner-wrap');
+  if (s0 > s1) {
+    wrap.innerHTML = `<div class="final-winner-name t1">🥇 الفائز: ${G.teams[0].name}</div>`;
+  } else if (s1 > s0) {
+    wrap.innerHTML = `<div class="final-winner-name t2">🥇 الفائز: ${G.teams[1].name}</div>`;
+  } else {
+    wrap.innerHTML = `<div class="final-winner-name tie">🤝 تعادل رائع!</div>`;
+  }
+
+  spawnFinalFireworks();
+  showPage('page-final');
+}
+
+function restartGame() {
+  G.teams[0].score = 0;
+  G.teams[1].score = 0;
+  G.turn = 0;
+  initHearts();
+  updateScoreboard();
+  buildCatGrid();
+  showPage('page-categories');
+}
+
+// ============================================================
+//  PARTICLES
+// ============================================================
+function spawnParticles() {
+  const emojis = ['✨','⭐','🌟','💫','🎊','🎉'];
+  for (let i = 0; i < 12; i++) {
+    const el = document.createElement('div');
+    el.className = 'particle';
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    el.style.cssText = `
+      left: ${30 + Math.random() * 40}%;
+      top: ${20 + Math.random() * 40}%;
+      font-size: ${0.8 + Math.random() * 1.5}rem;
+      --tx: ${(Math.random() - 0.5) * 200}px;
+      --ty: ${-50 - Math.random() * 150}px;
+      animation-delay: ${Math.random() * 0.3}s;
+    `;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2000);
+  }
+}
+
+function spawnFinalFireworks() {
+  const emojis = ['🎆','🎇','✨','🌟','🎊','🎉','⭐','💫'];
+  for (let i = 0; i < 30; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'particle';
+      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      el.style.cssText = `
+        left: ${Math.random() * 100}%;
+        top: ${Math.random() * 100}%;
+        font-size: ${1 + Math.random() * 2}rem;
+        --tx: ${(Math.random() - 0.5) * 300}px;
+        --ty: ${(Math.random() - 0.5) * 300}px;
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2000);
+    }, i * 100);
+  }
+}
+
+// ============================================================
+//  CANVAS SKY — Stars + Crescent glimmer
+// ============================================================
+(function() {
+  const canvas = document.getElementById('sky-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, stars = [], shootingStars = [];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    buildStars();
+  }
+
+  function buildStars() {
+    stars = [];
+    for (let i = 0; i < 180; i++) {
+      stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H * 0.7,
+        r: Math.random() * 1.5 + 0.3,
+        alpha: Math.random(),
+        speed: 0.003 + Math.random() * 0.008,
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  function spawnShooting() {
+    if (Math.random() < 0.004) {
+      shootingStars.push({
+        x: Math.random() * W * 0.8,
+        y: Math.random() * H * 0.3,
+        vx: 3 + Math.random() * 4,
+        vy: 1.5 + Math.random() * 2,
+        len: 80 + Math.random() * 60,
+        alpha: 1,
+        life: 60
+      });
+    }
+  }
+
+  let t = 0;
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Gradient sky
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, '#040810');
+    grad.addColorStop(0.5, '#081525');
+    grad.addColorStop(1, '#0A1A2E');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    t += 0.016;
+
+    // Stars
+    stars.forEach(s => {
+      const a = 0.4 + 0.6 * Math.abs(Math.sin(s.phase + t * s.speed * 50));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,245,200,${a})`;
+      ctx.fill();
+    });
+
+    // Shooting stars
+    spawnShooting();
+    shootingStars = shootingStars.filter(ss => ss.life > 0);
+    shootingStars.forEach(ss => {
+      const grad2 = ctx.createLinearGradient(ss.x, ss.y, ss.x - ss.len, ss.y - ss.len * 0.5);
+      grad2.addColorStop(0, `rgba(255,240,160,${ss.alpha})`);
+      grad2.addColorStop(1, 'rgba(255,240,160,0)');
+      ctx.beginPath();
+      ctx.moveTo(ss.x, ss.y);
+      ctx.lineTo(ss.x - ss.len, ss.y - ss.len * 0.5);
+      ctx.strokeStyle = grad2;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ss.x += ss.vx;
+      ss.y += ss.vy;
+      ss.alpha -= 0.016;
+      ss.life--;
+    });
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  draw();
+})();
+
+// ============================================================
+//  LANTERNS
+// ============================================================
+(function() {
+  const container = document.getElementById('lanterns-container');
+  const count = 8;
+  const colors = [
+    ['#C44E2A','#FF9966'],
+    ['#1A6B9A','#5BC8F0'],
+    ['#D4A843','#FFE085'],
+    ['#6B2AC4','#B87DFF'],
+    ['#1A7A4A','#3ECC80'],
+    ['#C4472A','#FF8866'],
+    ['#2A6BC4','#66AAFF'],
+    ['#C4A32A','#FFD966']
+  ];
+
+  for (let i = 0; i < count; i++) {
+    const x = (i / (count - 1)) * 96 + 2;
+    const delay = (i * 0.6) + 's';
+    const [c1, c2] = colors[i % colors.length];
+    const lan = document.createElement('div');
+    lan.className = 'lantern';
+    lan.style.cssText = `left:${x}%; animation-delay:${delay};`;
+
+    lan.innerHTML = `<svg width="28" height="44" viewBox="0 0 28 44">
+      <defs>
+        <linearGradient id="lg${i}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:${c2}"/>
+          <stop offset="100%" style="stop-color:${c1}"/>
+        </linearGradient>
+        <radialGradient id="glow${i}" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" style="stop-color:${c2};stop-opacity:0.6"/>
+          <stop offset="100%" style="stop-color:${c1};stop-opacity:0"/>
+        </radialGradient>
+      </defs>
+      <ellipse cx="14" cy="22" rx="14" ry="18" fill="url(#glow${i})"/>
+      <rect x="9" y="2" width="10" height="3" rx="1.5" fill="${c1}" opacity="0.8"/>
+      <rect x="11" y="0" width="6" height="3" rx="1.5" fill="${c1}" opacity="0.7"/>
+      <path d="M4,8 Q14,5 24,8 L26,36 Q14,39 2,36 Z" fill="url(#lg${i})" opacity="0.92"/>
+      <line x1="8" y1="10" x2="8" y2="34" stroke="${c1}" stroke-width="0.5" opacity="0.4"/>
+      <line x1="14" y1="8" x2="14" y2="36" stroke="${c1}" stroke-width="0.5" opacity="0.4"/>
+      <line x1="20" y1="10" x2="20" y2="34" stroke="${c1}" stroke-width="0.5" opacity="0.4"/>
+      <ellipse cx="14" cy="22" rx="6" ry="8" fill="${c2}" opacity="0.15"/>
+      <rect x="9" y="35" width="10" height="3" rx="1.5" fill="${c1}" opacity="0.8"/>
+      <line x1="14" y1="38" x2="14" y2="44" stroke="${c1}" stroke-width="1" opacity="0.5"/>
+    </svg>`;
+
+    container.appendChild(lan);
+  }
+})();
+
+// ============================================================
+//  INIT
+// ============================================================
+buildAdminPanel();
+</script>
+</body>
+</html>
